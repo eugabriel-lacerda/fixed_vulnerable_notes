@@ -86,7 +86,7 @@ None of the security-relevant headers `helmet()` would normally add are present 
 
 ### Impact
 
-No single catastrophic exploit on its own, but it removes several defense-in-depth layers at once: no clickjacking protection (`X-Frame-Options`), no MIME-sniffing protection (`X-Content-Type-Options`), no CSP to blunt the impact of any XSS that does land (relevant given [A05's stored XSS](A05-sql-injection.md) plan on the frontend side). Each header is a low-cost mitigation; skipping all of them compounds the app's overall exposure.
+No single catastrophic exploit on its own, but it removes several defense-in-depth layers at once: no clickjacking protection (`X-Frame-Options`), no MIME-sniffing protection (`X-Content-Type-Options`), no CSP to blunt the impact of any XSS that does land (relevant given [A05's stored XSS](A05-injection.md) plan on the frontend side). Each header is a low-cost mitigation; skipping all of them compounds the app's overall exposure.
 
 ### Planned fix
 

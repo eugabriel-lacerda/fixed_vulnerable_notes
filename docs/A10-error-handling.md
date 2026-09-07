@@ -21,7 +21,7 @@ export const search = async (req: AuthenticatedRequest, res: Response) => {
 };
 ```
 
-Every other controller in this app catches errors and returns a generic `"Internal server error"` message (see the pattern in [A05](A05-sql-injection.md)'s repository code, which uses the same query mechanism). This one endpoint returns `error.message` unfiltered instead — and because this is the same endpoint that already has [SQL injection](A05-sql-injection.md), a malformed injection attempt doesn't just fail silently, it echoes back the exact query that failed.
+Every other controller in this app catches errors and returns a generic `"Internal server error"` message (see the pattern in [A05](A05-injection.md)'s repository code, which uses the same query mechanism). This one endpoint returns `error.message` unfiltered instead — and because this is the same endpoint that already has [SQL injection](A05-injection.md), a malformed injection attempt doesn't just fail silently, it echoes back the exact query that failed.
 
 ## PoC
 
@@ -41,7 +41,7 @@ The response leaks the fully-assembled SQL query, with the attacker's own input 
 
 ## Impact
 
-Turns SQL injection from a guessing game into a guided one. Each failed attempt against `/notes/search` teaches the attacker the exact query shape, accelerating discovery of a working payload (see [A05](A05-sql-injection.md) for what a successful one achieves — reading every user's notes in a single request). Beyond this specific endpoint, verbose database errors in general also risk exposing schema details (table/column names, constraint names) useful for reconnaissance even without a working injection yet.
+Turns SQL injection from a guessing game into a guided one. Each failed attempt against `/notes/search` teaches the attacker the exact query shape, accelerating discovery of a working payload (see [A05](A05-injection.md) for what a successful one achieves — reading every user's notes in a single request). Beyond this specific endpoint, verbose database errors in general also risk exposing schema details (table/column names, constraint names) useful for reconnaissance even without a working injection yet.
 
 ## Planned fix
 

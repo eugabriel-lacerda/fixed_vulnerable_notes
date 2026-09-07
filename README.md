@@ -3,7 +3,7 @@
 > ⚠️ **This repository contains deliberately introduced vulnerabilities, for educational purposes.**
 > **Do not use this code in production or as a base for real projects.**
 
-A personal notes application (Node/Express + PostgreSQL, React frontend planned) built to implement all 10 categories of the **OWASP Top 10:2025** on purpose. Each vulnerability is documented with an attack example, impact, and reference to the OWASP category.
+A personal notes application (Node/Express + PostgreSQL backend, React + TypeScript frontend) built to implement all 10 categories of the **OWASP Top 10:2025** on purpose. Each vulnerability is documented with an attack example, impact, and reference to the OWASP category.
 
 🔧 **Currently in active development — built in public.** Follow along on [LinkedIn](https://www.linkedin.com/in/gabriel-lacerda-nascimento/).
 
@@ -24,7 +24,7 @@ It's part of a two-repo pair:
 ## Stack
 
 - **Backend:** Node.js + Express + PostgreSQL (Drizzle ORM, raw SQL)
-- **Frontend:** React (planned)
+- **Frontend:** React + TypeScript (Vite, Tailwind v4)
 - **Auth:** JWT
 - **Local environment:** Docker Compose
 
@@ -60,19 +60,13 @@ npx drizzle-kit migrate
 | 3 | A04 — Cryptographic Failures | Password hashing (MD5, no salt) | [docs/A04-crypto-failures.md](docs/A04-crypto-failures.md) |
 | 4 | A07 — Authentication Failures | JWT without expiration, no login lockout, password reset code never expires | [docs/A07-auth-failures.md](docs/A07-auth-failures.md) |
 | 5 | A09 — Security Logging and Alerting Failures | No logging of login attempts | [docs/A09-logging-failures.md](docs/A09-logging-failures.md) |
-| 6 | A05 — Injection (SQLi) | Raw string interpolation in note search | [docs/A05-sql-injection.md](docs/A05-sql-injection.md) |
+| 6 | A05 — Injection | SQLi in note search (backend) + stored XSS in note body rendering (frontend) | [docs/A05-injection.md](docs/A05-injection.md) |
 | 7 | A08 — Software/Data Integrity Failures | Unfiltered merge on note update, no schema validation | [docs/A08-integrity-failures.md](docs/A08-integrity-failures.md) |
 | 8 | A06 — Insecure Design | No rate limit on password reset confirmation | [docs/A06-insecure-design.md](docs/A06-insecure-design.md) |
 | 9 | A03 — Software Supply Chain Failures | Pinned vulnerable `jsonwebtoken@8.5.1` | [docs/A03-supply-chain.md](docs/A03-supply-chain.md) |
 | 10 | A10 — Mishandling of Exceptional Conditions | Raw database error leaked via note search | [docs/A10-error-handling.md](docs/A10-error-handling.md) |
 
-All 10 OWASP Top 10:2025 categories are implemented and documented on the backend.
-
-## Planned vulnerabilities
-
-| Category (OWASP 2025) | Where | Status |
-|---|---|---|
-| A05 — Injection (XSS) | Note body rendering | Not started |
+All 10 OWASP Top 10:2025 categories are implemented and documented, across both backend and frontend.
 
 ---
 
@@ -86,7 +80,7 @@ vuln_notes/
 │   ├── A02-security-misconfiguration.md
 │   ├── A03-supply-chain.md
 │   ├── A04-crypto-failures.md
-│   ├── A05-sql-injection.md
+│   ├── A05-injection.md
 │   ├── A06-insecure-design.md
 │   ├── A07-auth-failures.md
 │   ├── A08-integrity-failures.md
@@ -109,6 +103,14 @@ vuln_notes/
 │       ├── types/
 │       └── utils/
 └── frontend/
+    └── src/
+        ├── api/
+        └── pages/
+            ├── login/
+            ├── register/
+            ├── notes/
+            ├── note-detail/
+            └── recover-password/
 ```
 
 Each file in `docs/` follows the same format: **context → proof of concept → impact → planned fix → OWASP reference**.
