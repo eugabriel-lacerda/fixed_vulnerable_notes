@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { Login } from "./pages/Login";
-import { Register } from "./pages/Register";
-import { Notes } from "./pages/Notes";
-import { NoteDetail } from "./pages/NoteDetail";
-import { RecoverPassword } from "./pages/RecoverPassword";
+import { Login } from "./pages/login/index.tsx";
+import { Register } from "./pages/register/index.tsx";
+import { Notes } from "./pages/notes";
+import { NoteDetail } from "./pages/note-detail";
+import { RecoverPassword } from "./pages/recover-password";
 
 function App() {
   return (

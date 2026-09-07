@@ -6,6 +6,7 @@ build/
 *.local
 scope.md
 .claude
+.playwright-mcp/
 
 # Logs
 logs
