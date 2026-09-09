@@ -49,6 +49,17 @@ Apply the database schema:
 npx drizzle-kit migrate
 ```
 
+In a separate terminal, start the frontend:
+
+```bash
+cd vuln_notes/frontend
+cp .env.example .env
+npm install
+npm run dev
+```
+
+App available at `http://localhost:5173`.
+
 ---
 
 ## Implemented vulnerabilities
