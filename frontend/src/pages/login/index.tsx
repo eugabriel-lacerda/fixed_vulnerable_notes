@@ -5,12 +5,12 @@ export function Login() {
   const { email, setEmail, password, setPassword, error, handleSubmit } = useLogin();
 
   return (
-    <div className="flex min-h-svh flex-col items-center px-6 py-12">
-      <Link to="/login" className="font-display text-xl font-medium text-ink no-underline">
+    <div className="relative flex min-h-svh flex-col items-center justify-center px-6 py-12">
+      <Link to="/login" className="absolute top-12 left-1/2 -translate-x-1/2 font-display text-xl font-medium text-ink no-underline">
         Vuln Notes
       </Link>
 
-      <div className="mt-17.5 w-full max-w-95">
+      <div className="w-full max-w-95">
         <h1 className="font-display text-[28px] font-medium italic">Welcome back</h1>
         <p className="mb-8 mt-2 font-sans text-sm text-ink-soft">Pick up where you left off.</p>
 

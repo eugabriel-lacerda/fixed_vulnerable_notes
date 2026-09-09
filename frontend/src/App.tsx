@@ -3,7 +3,7 @@ import { Login } from "./pages/login/index.tsx";
 import { Register } from "./pages/register/index.tsx";
 import { Notes } from "./pages/notes/index.tsx";
 import { NoteDetail } from "./pages/note-detail/index.tsx";
-import { RecoverPassword } from "./pages/recover-password";
+import { RecoverPassword } from "./pages/recover-password/index.tsx";
 
 function App() {
   return (
