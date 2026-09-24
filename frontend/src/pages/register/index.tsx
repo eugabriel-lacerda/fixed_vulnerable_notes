@@ -1,81 +1,53 @@
 import { Link } from "react-router-dom";
+import { AuthLayout } from "../../components/AuthLayout/index.tsx";
+import { Input } from "../../components/Input/index.tsx";
+import { Button } from "../../components/Button/index.tsx";
 import { useRegister } from "./index.ts";
 
 export function Register() {
-  const { email, setEmail, password, setPassword, error, handleSubmit } = useRegister();
+  const { email, setEmail, password, setPassword, error, loading, handleSubmit } = useRegister();
 
   return (
-    <div className="relative flex min-h-svh flex-col items-center justify-center px-6 py-12">
-      <Link to="/login" className="absolute top-12 left-1/2 -translate-x-1/2 font-display text-xl font-medium text-ink no-underline">
-        Vuln Notes
-      </Link>
+    <AuthLayout
+      title="Start writing"
+      subtitle="A quiet place to keep your notes."
+      footer={
+        <span>
+          Already have an account?{" "}
+          <Link to="/login" className="border-b border-rule text-ink no-underline hover:border-accent hover:text-accent">
+            Log in
+          </Link>
+        </span>
+      }
+    >
+      <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+        <Input
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          autoComplete="email"
+          required
+        />
+        <Input
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          autoComplete="new-password"
+          required
+        />
 
-      <div className="w-full max-w-95">
-        <h1 className="font-display text-[28px] font-medium italic">Start writing</h1>
-        <p className="mb-8 mt-2 font-sans text-sm text-ink-soft">A quiet place to keep your notes.</p>
+        {error && (
+          <p role="alert" className="border-l-2 border-error bg-error-bg px-2.5 py-2 font-mono text-[13px] text-error">
+            {error}
+          </p>
+        )}
 
-        <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
-          <div className="group relative flex flex-col gap-1.5">
-            <label htmlFor="email" className="font-mono text-[11px] uppercase tracking-wider text-ink-soft">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-              required
-              className="border-0 border-b border-rule bg-transparent px-0.5 pb-2.5 pt-1.5 font-sans text-[15px] text-ink outline-none focus-visible:outline-none focus:border-transparent"
-            />
-            <span
-              aria-hidden="true"
-              className="absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-accent transition-transform duration-300 ease-out group-focus-within:scale-x-100"
-            />
-          </div>
-
-          <div className="group relative flex flex-col gap-1.5">
-            <label htmlFor="password" className="font-mono text-[11px] uppercase tracking-wider text-ink-soft">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password"
-              required
-              className="border-0 border-b border-rule bg-transparent px-0.5 pb-2.5 pt-1.5 font-sans text-[15px] text-ink outline-none focus-visible:outline-none focus:border-transparent"
-            />
-            <span
-              aria-hidden="true"
-              className="absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-accent transition-transform duration-300 ease-out group-focus-within:scale-x-100"
-            />
-          </div>
-
-          {error && (
-            <p role="alert" className="border-l-2 border-error bg-error-bg px-2.5 py-2 font-mono text-[13px] text-error">
-              {error}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            className="mt-2 rounded-sm bg-ink px-5 py-3 font-sans text-[15px] font-semibold text-paper transition-colors hover:bg-accent active:bg-accent-dark"
-          >
-            Create account
-          </button>
-        </form>
-
-        <div className="mt-7 flex flex-col gap-2.5 text-sm text-ink-soft">
-          <span>
-            Already have an account?{" "}
-            <Link to="/login" className="border-b border-rule text-ink no-underline hover:border-accent hover:text-accent">
-              Log in
-            </Link>
-          </span>
-        </div>
-      </div>
-    </div>
+        <Button type="submit" className="mt-2" loading={loading}>
+          Create account
+        </Button>
+      </form>
+    </AuthLayout>
   );
 }

@@ -1,36 +1,26 @@
+import { NotebookPen, SearchX } from "lucide-react";
 import { Link } from "react-router-dom";
+import { AppLayout } from "../../components/AppLayout/index.tsx";
+import { SearchInput } from "../../components/SearchInput/index.tsx";
+import { NoteCard } from "../../components/NoteCard/index.tsx";
+import { EmptyState } from "../../components/EmptyState/index.tsx";
+import { Button } from "../../components/Button/index.tsx";
 import { useNotes } from "./index.ts";
 
 export function Notes() {
-  const { notes, query, setQuery, loading, error, handleSearch } = useNotes();
+  const { notes, query, setQuery, searchedQuery, loading, error, handleSearch, handleClearSearch } = useNotes();
+
+  const isSearching = searchedQuery.length > 0;
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-12">
-      <div className="mb-10 flex items-baseline justify-between">
-        <Link to="/notes" className="font-display text-xl font-medium text-ink no-underline">
-          Vuln Notes
-        </Link>
-        <Link
-          to="/notes/new"
-          className="rounded-sm bg-ink px-4 py-2 font-sans text-sm font-semibold text-paper no-underline transition-colors hover:bg-accent"
-        >
-          New note
-        </Link>
+    <AppLayout>
+      <div className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="font-display text-2xl italic">Your notes</h1>
+          <p className="mt-1 font-sans text-sm text-ink-soft">Capture ideas, findings and anything worth remembering.</p>
+        </div>
+        <SearchInput value={query} onChange={setQuery} onSubmit={handleSearch} onClear={handleClearSearch} />
       </div>
-
-      <form onSubmit={handleSearch} className="group relative mb-8">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by title"
-          className="w-full border-0 border-b border-rule bg-transparent px-0.5 pb-2.5 pt-1.5 font-sans text-[15px] text-ink outline-none focus-visible:outline-none focus:border-transparent"
-        />
-        <span
-          aria-hidden="true"
-          className="absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-accent transition-transform duration-300 ease-out group-focus-within:scale-x-100"
-        />
-      </form>
 
       {error && (
         <p role="alert" className="mb-6 border-l-2 border-error bg-error-bg px-2.5 py-2 font-mono text-[13px] text-error">
@@ -38,31 +28,50 @@ export function Notes() {
         </p>
       )}
 
-      {loading && <p className="font-sans text-sm text-ink-soft">Loading notes…</p>}
-
-      {!loading && notes.length === 0 && !error && (
-        <p className="font-sans text-sm text-ink-soft">
-          No notes yet. <Link to="/notes/new" className="text-accent">Write your first one.</Link>
-        </p>
+      {loading && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-44 animate-pulse rounded-sm border border-rule bg-paper-dim" />
+          ))}
+        </div>
       )}
 
-      <ul className="flex flex-col divide-y divide-rule">
-        {notes.map((note) => (
-          <li key={note.id}>
+      {!loading && !error && notes.length === 0 && !isSearching && (
+        <EmptyState
+          icon={<NotebookPen className="size-5" aria-hidden="true" />}
+          title="No notes yet"
+          description="Everything you write ends up here. Start with your first note."
+          action={
             <Link
-              to={`/notes/${note.id}`}
-              className="flex items-baseline justify-between gap-4 py-4 no-underline"
+              to="/notes/new"
+              className="mt-2 inline-flex items-center justify-center rounded-sm bg-ink px-4 py-2 font-sans text-sm font-semibold text-paper no-underline transition-colors hover:bg-accent"
             >
-              <span className="font-display text-lg text-ink">{note.title}</span>
-              {note.created_at && (
-                <span className="shrink-0 font-mono text-xs text-ink-soft">
-                  {new Date(note.created_at).toLocaleDateString()}
-                </span>
-              )}
+              Create your first note
             </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+          }
+        />
+      )}
+
+      {!loading && !error && notes.length === 0 && isSearching && (
+        <EmptyState
+          icon={<SearchX className="size-5" aria-hidden="true" />}
+          title="No notes found"
+          description={`Nothing matches "${searchedQuery}". Try a different title.`}
+          action={
+            <Button size="sm" variant="secondary" onClick={handleClearSearch}>
+              Clear search
+            </Button>
+          }
+        />
+      )}
+
+      {!loading && !error && notes.length > 0 && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {notes.map((note) => (
+            <NoteCard key={note.id} note={note} />
+          ))}
+        </div>
+      )}
+    </AppLayout>
   );
 }

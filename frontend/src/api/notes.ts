@@ -1,12 +1,5 @@
 import { apiFetch } from "./client";
-
-export type Note = {
-  id: number;
-  user_id: number;
-  title: string;
-  body?: string;
-  created_at?: string;
-};
+import type { Note } from "../types/Note";
 
 export async function listNotes(): Promise<Note[]> {
   return apiFetch("/notes");

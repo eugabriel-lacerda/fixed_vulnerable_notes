@@ -9,30 +9,36 @@ export function useRecoverPassword() {
   const [newPassword, setNewPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   async function handleRequest(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setLoading(true);
 
     try {
       await requestPasswordReset(email);
-      setMessage("Check the server console for your recovery code.");
+      setMessage("The recovery code is printed in the backend console.");
       setStep("confirm");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to request reset");
+    } finally {
+      setLoading(false);
     }
   }
 
   async function handleConfirm(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setLoading(true);
 
     try {
       await confirmPasswordReset(email, code, newPassword);
       navigate("/login");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to reset password");
+      setLoading(false);
     }
   }
 
@@ -46,6 +52,7 @@ export function useRecoverPassword() {
     setNewPassword,
     error,
     message,
+    loading,
     handleRequest,
     handleConfirm,
   };
