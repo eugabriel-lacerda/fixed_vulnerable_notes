@@ -1,23 +1,36 @@
-# 📝 Vuln Notes — Vulnerable Version (AppSec Portfolio)
+# 🔒 Vuln Notes — Fixed Version (AppSec Portfolio)
 
-> ⚠️ **This repository contains deliberately introduced vulnerabilities, for educational purposes.**
-> **Do not use this code in production or as a base for real projects.**
-
-A personal notes application (Node/Express + PostgreSQL backend, React + TypeScript frontend) built to implement all 10 categories of the **OWASP Top 10:2025** on purpose. Each vulnerability is documented with an attack example, impact, and reference to the OWASP category.
+> This repository is a fork of [vulnerable_notes](https://github.com/eugabriel-lacerda/vulnerable_notes), preserving its full commit history, where each of the 10 deliberately introduced OWASP Top 10:2025 vulnerabilities is fixed one commit at a time. A DevSecOps layer (CI + SCA + SAST + DAST) sits on top, first capturing the vulnerabilities as tooling findings, then showing each fix turn a finding green.
 
 🔧 **Currently in active development — built in public.** Follow along on [LinkedIn](https://www.linkedin.com/in/gabriel-lacerda-nascimento/).
 
-➡️ **Fixed version (with full commit history of each fix):** [fixed_vulnerable_notes](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes)
+⬅️ **Vulnerable version (the "before"):** [vulnerable_notes](https://github.com/eugabriel-lacerda/vulnerable_notes)
 
 ---
 
 ## Project goal
 
-I'm a fullstack developer transitioning into AppSec/WebSec. This project exists to demonstrate, in practice, that I understand each vulnerability beyond its name, how it shows up in code, how it's exploited, and how it's fixed.
+I'm a fullstack developer transitioning into AppSec/WebSec. This project exists to demonstrate, in practice, that I understand each vulnerability beyond its name: how it shows up in code, how it's exploited, how it's fixed, and how tooling catches it.
 
 It's part of a two-repo pair:
-- **This repo:** a working app with the vulnerabilities implemented as part of normal development
-- **Fixed repo (coming soon):** a fork of this repository with each vulnerability fixed individually, preserving history for direct comparison. It will also introduce a DevSecOps layer on top of the fixes — GitHub Actions CI, SCA, SAST, and DAST — to show the vulnerabilities being caught by tooling, not just fixed by hand.
+- **[vulnerable_notes](https://github.com/eugabriel-lacerda/vulnerable_notes):** a working app with the vulnerabilities implemented as part of normal development
+- **This repo:** a fork of that repository, same commit history, with a DevSecOps pipeline added first (against the still-vulnerable code, so findings are captured), followed by one commit per fix — in reverse order of the scope list — so each fix's effect on the pipeline is visible commit by commit
+
+---
+
+## Approach
+
+1. **Pipeline first, on vulnerable code.** GitHub Actions CI added before any fix, running SCA/SAST/DAST against the codebase as-is. Findings are expected here (vulnerable `jsonwebtoken`, SQLi, XSS, missing security headers, open CORS, etc).
+2. **One commit per vulnerability fixed**, applied in the reverse order they were introduced.
+3. **Pipeline goes green incrementally.** Each fix commit is directly comparable against the pipeline output before it — e.g. "here SAST still flagged X, here it no longer does."
+
+### Tooling
+
+| Layer | Tool | Catches |
+|---|---|---|
+| SCA | Dependabot + `npm audit` | Vulnerable `jsonwebtoken@8.5.1` |
+| SAST | CodeQL + Semgrep (OWASP rule set) | SQLi (`sql.raw`), mass assignment, prototype pollution |
+| DAST | OWASP ZAP baseline scan | Reflected/stored XSS at runtime, missing headers (no helmet), open CORS |
 
 ---
 
@@ -33,8 +46,8 @@ It's part of a two-repo pair:
 ## How to run
 
 ```bash
-git clone <this-repo-url>
-cd vuln_notes/backend
+git clone https://github.com/eugabriel-lacerda/fixed_vulnerable_notes
+cd fixed_vulnerable_notes/backend
 cp .env.example .env
 docker compose up -d
 npm install
@@ -52,7 +65,7 @@ npx drizzle-kit migrate
 In a separate terminal, start the frontend:
 
 ```bash
-cd vuln_notes/frontend
+cd fixed_vulnerable_notes/frontend
 cp .env.example .env
 npm install
 npm run dev
@@ -62,29 +75,31 @@ App available at `http://localhost:5173`.
 
 ---
 
-## Implemented vulnerabilities
+## Vulnerabilities being fixed
 
-| # | Category (OWASP 2025) | Where | Docs |
+Fixed in reverse order of introduction. Each row will link to the fix commit and updated doc once done.
+
+| # | Category (OWASP 2025) | Where | Status |
 |---|---|---|---|
-| 1 | A01 — Broken Access Control | IDOR on `GET/PUT/DELETE /notes/:id` + mass assignment on `POST /notes` | [docs/A01-broken-access-control.md](docs/A01-broken-access-control.md) |
-| 2 | A02 — Security Misconfiguration | Hardcoded JWT secret, CORS wide open, missing helmet | [docs/A02-security-misconfiguration.md](docs/A02-security-misconfiguration.md) |
-| 3 | A04 — Cryptographic Failures | Password hashing (MD5, no salt) | [docs/A04-crypto-failures.md](docs/A04-crypto-failures.md) |
-| 4 | A07 — Authentication Failures | JWT without expiration, no login lockout, password reset code never expires | [docs/A07-auth-failures.md](docs/A07-auth-failures.md) |
-| 5 | A09 — Security Logging and Alerting Failures | No logging of login attempts | [docs/A09-logging-failures.md](docs/A09-logging-failures.md) |
-| 6 | A05 — Injection | SQLi in note search (backend) + stored XSS in note body rendering (frontend) | [docs/A05-injection.md](docs/A05-injection.md) |
-| 7 | A08 — Software/Data Integrity Failures | Unfiltered merge on note update, no schema validation | [docs/A08-integrity-failures.md](docs/A08-integrity-failures.md) |
-| 8 | A06 — Insecure Design | No rate limit on password reset confirmation | [docs/A06-insecure-design.md](docs/A06-insecure-design.md) |
-| 9 | A03 — Software Supply Chain Failures | Pinned vulnerable `jsonwebtoken@8.5.1` | [docs/A03-supply-chain.md](docs/A03-supply-chain.md) |
-| 10 | A10 — Mishandling of Exceptional Conditions | Raw database error leaked via note search | [docs/A10-error-handling.md](docs/A10-error-handling.md) |
+| 1 | A10 — Mishandling of Exceptional Conditions | Raw database error leaked via note search | ⏳ Pending |
+| 2 | A03 — Software Supply Chain Failures | Pinned vulnerable `jsonwebtoken@8.5.1` | ⏳ Pending |
+| 3 | A06 — Insecure Design | No rate limit on password reset confirmation | ⏳ Pending |
+| 4 | A08 — Software/Data Integrity Failures | Unfiltered merge on note update, no schema validation | ⏳ Pending |
+| 5 | A05 — Injection | SQLi in note search (backend) + stored XSS in note body rendering (frontend) | ⏳ Pending |
+| 6 | A09 — Security Logging and Alerting Failures | No logging of login attempts | ⏳ Pending |
+| 7 | A07 — Authentication Failures | JWT without expiration, no login lockout, password reset code never expires | ⏳ Pending |
+| 8 | A04 — Cryptographic Failures | Password hashing (MD5, no salt) | ⏳ Pending |
+| 9 | A02 — Security Misconfiguration | Hardcoded JWT secret, CORS wide open, missing helmet | ⏳ Pending |
+| 10 | A01 — Broken Access Control | IDOR on `GET/PUT/DELETE /notes/:id` + mass assignment on `POST /notes` | ⏳ Pending |
 
-All 10 OWASP Top 10:2025 categories are implemented and documented, across both backend and frontend.
+Original vulnerability docs (context, PoC, impact) carried over from the vulnerable repo: [docs/](docs/).
 
 ---
 
 ## Repository structure
 
 ```
-vuln_notes/
+fixed_vulnerable_notes/
 ├── README.md
 ├── docs/
 │   ├── A01-broken-access-control.md
@@ -97,6 +112,8 @@ vuln_notes/
 │   ├── A08-integrity-failures.md
 │   ├── A09-logging-failures.md
 │   └── A10-error-handling.md
+├── .github/
+│   └── workflows/         # CI: SCA + SAST + DAST
 ├── backend/
 │   ├── docker-compose.yml
 │   ├── drizzle.config.ts
@@ -138,10 +155,8 @@ vuln_notes/
         └── utils/
 ```
 
-Each file in `docs/` follows the same format: **context → proof of concept → impact → planned fix → OWASP reference**.
-
 ---
 
 ## About this project
 
-This is a study and portfolio project, not a real product. If you're a recruiter or technical reviewer and want to talk through the reasoning behind any specific vulnerability, I'm happy to walk through it, that's exactly what this project is for.
+This is a study and portfolio project, not a real product. If you're a recruiter or technical reviewer and want to talk through the reasoning behind any specific fix or pipeline finding, I'm happy to walk through it, that's exactly what this project is for.
