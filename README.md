@@ -7,7 +7,7 @@ A personal notes application (Node/Express + PostgreSQL backend, React + TypeScr
 
 🔧 **Currently in active development — built in public.** Follow along on [LinkedIn](https://www.linkedin.com/in/gabriel-lacerda-nascimento/).
 
-➡️ **Fixed version (with full commit history of each fix):** coming soon
+➡️ **Fixed version (with full commit history of each fix):** [fixed_vulnerable_notes](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes)
 
 ---
 
@@ -116,12 +116,26 @@ vuln_notes/
 └── frontend/
     └── src/
         ├── api/
-        └── pages/
-            ├── login/
-            ├── register/
-            ├── notes/
-            ├── note-detail/
-            └── recover-password/
+        ├── components/
+        │   ├── AppHeader/
+        │   ├── AppLayout/
+        │   ├── AuthLayout/
+        │   ├── Button/
+        │   ├── ConfirmDialog/
+        │   ├── EmptyState/
+        │   ├── Input/
+        │   ├── NoteCard/
+        │   ├── SearchInput/
+        │   ├── Toast/
+        │   └── UserMenu/
+        ├── pages/
+        │   ├── login/
+        │   ├── register/
+        │   ├── notes/
+        │   ├── note-detail/
+        │   └── recover-password/
+        ├── types/
+        └── utils/
 ```
 
 Each file in `docs/` follows the same format: **context → proof of concept → impact → planned fix → OWASP reference**.
