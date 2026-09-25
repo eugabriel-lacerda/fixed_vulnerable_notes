@@ -220,9 +220,11 @@ jobs:
           fail_action: true
 
       - name: Clean ZAP baseline reports
+        if: always()
         run: sudo rm -f report_json.json report_md.md report_html.html
 
       - name: OWASP ZAP API Scan
+        if: always()
         uses: zaproxy/action-api-scan@v0.10.0
         env:
           ZAP_AUTH_HEADER: Authorization
