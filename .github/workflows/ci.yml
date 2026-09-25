@@ -149,6 +149,33 @@ jobs:
             sleep 2
           done
 
+      - name: Create DAST test user
+        run: |
+          curl --fail \
+            -X POST http://localhost:3002/auth/register \
+            -H "Content-Type: application/json" \
+            -d '{
+              "email": "zap@example.com",
+              "password": "ZapTest123!"
+            }'
+
+      - name: Log in DAST test user and capture token
+        run: |
+          TOKEN=$(curl --fail \
+            -X POST http://localhost:3002/auth/login \
+            -H "Content-Type: application/json" \
+            -d '{
+              "email": "zap@example.com",
+              "password": "ZapTest123!"
+            }' | jq -r '.token')
+
+          if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
+            echo "::error::Failed to obtain DAST token from login response"
+            exit 1
+          fi
+
+          echo "DAST_TOKEN=$TOKEN" >> "$GITHUB_ENV"
+
       - name: Install frontend dependencies
         working-directory: frontend
         run: npm ci
@@ -179,6 +206,10 @@ jobs:
 
       - name: OWASP ZAP API Scan
         uses: zaproxy/action-api-scan@v0.10.0
+        env:
+          ZAP_AUTH_HEADER: Authorization
+          ZAP_AUTH_HEADER_VALUE: Bearer ${{ env.DAST_TOKEN }}
+          ZAP_AUTH_HEADER_SITE: localhost:3002
         with:
           target: backend/openapi.yaml
           format: openapi
