@@ -1,10 +1,12 @@
 import { Router } from "express";
 import { list, search, getById, create, update, remove } from "../controllers/NoteController";
 import { authMiddleware } from "../middlewares/authMiddleware";
+import { noteRateLimit } from "../middlewares/rateLimitMiddleware";
 
 const noteRoutes = Router();
 
 noteRoutes.use(authMiddleware);
+noteRoutes.use(noteRateLimit);
 
 noteRoutes.get("/", list);
 noteRoutes.get("/search", search);
