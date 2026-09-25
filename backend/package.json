@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/server.js",
     "dev": "npx tsx --watch server.ts",
-    "build": "tsc"
+    "build": "tsc && cp openapi.yaml dist/openapi.yaml"
   },
   "keywords": [],
   "author": "",
@@ -20,17 +20,21 @@
     "express": "^5.2.1",
     "express-rate-limit": "^8.7.0",
     "jsonwebtoken": "^9.0.3",
-    "pg": "^8.23.0"
+    "pg": "^8.23.0",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.6",
     "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/js-yaml": "^4.0.9",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.2.0",
     "@types/pg": "^8.23.1",
+    "@types/swagger-ui-express": "^4.1.8",
     "drizzle-kit": "^0.31.10",
+    "js-yaml": "^5.4.2",
     "tsx": "^4.23.12",
     "typescript": "^7.0.2"
   }

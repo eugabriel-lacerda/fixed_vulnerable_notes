@@ -133,7 +133,7 @@ jobs:
       - name: Start backend
         working-directory: backend
         env:
-          PORT: 3001
+          PORT: 3002
           DB_USER: vuln_notes
           DB_PASSWORD: vuln_notes
           DB_NAME: vuln_notes
@@ -145,7 +145,7 @@ jobs:
 
       - name: Wait for backend
         run: | 
-          until curl --fail http://localhost:3001/health; do
+          until curl --fail http://localhost:3002/health; do
             sleep 2
           done
 
