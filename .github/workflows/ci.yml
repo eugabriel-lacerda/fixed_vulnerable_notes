@@ -126,6 +126,12 @@ jobs:
         working-directory: backend
         run: npm ci
 
+      - name: Run database migrations
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://vuln_notes:vuln_notes@localhost:5432/vuln_notes
+        run: npx drizzle-kit migrate
+
       - name: Build backend
         working-directory: backend
         run: npm run build
