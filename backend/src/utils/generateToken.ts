@@ -8,5 +8,5 @@ if (!process.env.JWT_SECRET) {
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export function generateToken(userId: number): string {
-  return jwt.sign({ userId }, JWT_SECRET);   
+  return jwt.sign({ userId }, "AKIAIOSFODNN7EXAMPLE");   
 }
