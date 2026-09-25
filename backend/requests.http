@@ -1,6 +1,9 @@
 @baseUrl = http://localhost:3002
 
-### CORS PoC — preflight from an arbitrary origin, gets Access-Control-Allow-Origin: *
+### Health check
+GET {{baseUrl}}/health
+
+### CORS — fixed, preflight from an arbitrary origin should NOT get Access-Control-Allow-Origin back
 OPTIONS {{baseUrl}}/notes
 Origin: https://evil-attacker-site.com
 Access-Control-Request-Method: GET
@@ -45,7 +48,7 @@ Content-Type: application/json
   "newPassword": "newpassword123"
 }
 
-### Brute-force PoC — no rate limit, spam guesses until one lands (script this with a loop)
+### Brute-force check — fixed, rate limit now kicks in after a few attempts (script this with a loop)
 POST {{baseUrl}}/auth/recover-password/confirm
 Content-Type: application/json
 
