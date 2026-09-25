@@ -147,6 +147,8 @@ jobs:
           DATABASE_URL: postgresql://vuln_notes:vuln_notes@localhost:5432/vuln_notes
           JWT_SECRET: ci-test-jwt-secret
           CORS_ORIGIN: http://localhost:5173
+          AUTH_RATE_LIMIT: 1000
+          NOTE_RATE_LIMIT: 1000
         run: npm run start &
 
       - name: Wait for backend
