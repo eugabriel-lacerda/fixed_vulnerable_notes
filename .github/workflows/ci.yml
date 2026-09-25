@@ -174,10 +174,14 @@ jobs:
           allow_issue_writing: false
           fail_action: false
 
+      - name: Clean ZAP baseline reports
+        run: sudo rm -f report_json.json report_md.md report_html.html
+
       - name: OWASP ZAP API Scan
-        uses: zaproxy/action-api-scan@v0.6.0
+        uses: zaproxy/action-api-scan@v0.10.0
         with:
           target: backend/openapi.yaml
           format: openapi
           allow_issue_writing: false
           fail_action: true
+          artifact_name: zap_api_scan
