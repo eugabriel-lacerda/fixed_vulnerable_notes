@@ -5,8 +5,8 @@ import { noteRateLimit } from "../middlewares/rateLimitMiddleware";
 
 const noteRoutes = Router();
 
-noteRoutes.use(authMiddleware);
 noteRoutes.use(noteRateLimit);
+noteRoutes.use(authMiddleware);
 
 noteRoutes.get("/", list);
 noteRoutes.get("/search", search);
