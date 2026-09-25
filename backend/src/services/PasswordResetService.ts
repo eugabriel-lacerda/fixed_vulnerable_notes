@@ -3,6 +3,7 @@ import { findUserByEmail } from "../repositories/AuthRepository";
 import * as PasswordResetRepository from "../repositories/PasswordResetRepository";
 import { generateCode } from "../utils/generateCode";
 import { hashPassword } from "../utils/hashPassword";
+import { sanitizeForLog } from "../utils/sanitizeForLog";
 
 
 
@@ -16,7 +17,7 @@ export async function requestPasswordReset(email: string) {
   const code = generateCode();
   await PasswordResetRepository.createCode(user.id, code);
 
-  console.log(`Password reset code for ${email}: ${code}`);
+  console.log(`Password reset code for ${sanitizeForLog(email)}: ${code}`);
 
   return { message: "Reset code sent" };
 }
