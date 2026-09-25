@@ -1,8 +1,7 @@
 import { AppError } from "../errors/AppError";
 import { createUser, findUserByEmail, getPasswordHashByEmail } from "../repositories/AuthRepository";
-import crypto from "crypto";
 import { generateToken } from "../utils/generateToken";
-import { hashPassword } from "../utils/hashPassword";
+import { hashPassword, comparePassword } from "../utils/hashPassword";
 
 export async function registerUser(email: string, password: string) {
     const userAlreadyExists = await findUserByEmail(email);
@@ -26,9 +25,7 @@ export async function loginUser(email: string, password: string){
     const user = await findUserByEmail(email);
     const userPasswordHashed = await getPasswordHashByEmail(email)
 
-    const hashedPassword = await hashPassword(password)
-
-    if(!user || (userPasswordHashed !== hashedPassword)){
+    if(!user || !userPasswordHashed || !(await comparePassword(password, userPasswordHashed))){
         throw new AppError("Invalid credentials", 404);
     }
 
