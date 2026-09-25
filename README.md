@@ -96,6 +96,21 @@ Original vulnerability docs (context, PoC, impact) carried over from the vulnera
 
 ---
 
+## Tooling findings
+
+Extra findings surfaced by CodeQL/Semgrep once the pipeline ran, not part of the original 10-item scope. Fixed as they were found.
+
+| Finding | Where | Found by | Commit |
+|---|---|---|---|
+| Hardcoded JWT secret | `authMiddleware.ts`, `generateToken.ts` | Semgrep | [`af84c4a`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/af84c4a) |
+| Permissive CORS configuration | `server.ts` | CodeQL | [`7dbc894`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/7dbc894) |
+| Weak password hash (MD5) | `hashPassword.ts` | CodeQL | [`2d20509`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/2d20509) |
+| Missing rate limiting (auth routes) | `auth.routes.ts` | CodeQL | [`556bcaa`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/556bcaa) |
+| Missing rate limiting (note routes) | `note.routes.ts` | CodeQL | [`aedc218`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/aedc218) |
+| Log injection | `PasswordResetService.ts` | CodeQL | [`b753496`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/b753496) |
+
+---
+
 ## Repository structure
 
 ```
