@@ -172,4 +172,12 @@ jobs:
         with:
           target: http://localhost:5173
           allow_issue_writing: false
+          fail_action: false
+
+      - name: OWASP ZAP API Scan
+        uses: zaproxy/action-api-scan@v0.6.0
+        with:
+          target: backend/openapi.yaml
+          format: openapi
+          allow_issue_writing: false
           fail_action: true
