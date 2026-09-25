@@ -221,7 +221,7 @@ jobs:
         env:
           ZAP_AUTH_HEADER: Authorization
           ZAP_AUTH_HEADER_VALUE: Bearer ${{ env.DAST_TOKEN }}
-          ZAP_AUTH_HEADER_SITE: localhost:3002
+          ZAP_AUTH_HEADER_SITE: localhost
         with:
           target: backend/openapi.yaml
           format: openapi
