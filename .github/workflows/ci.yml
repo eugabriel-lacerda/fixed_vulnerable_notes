@@ -97,3 +97,79 @@ jobs:
         uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+  dast:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Start PostgreSQL
+        working-directory: backend
+        run: docker compose up -d postgres
+
+      - name: Wait for PostgreSQL
+        working-directory: backend
+        run: |
+          until docker compose exec -T postgres pg_isready -U vuln_notes -d vuln_notes; do
+            sleep 2
+          done
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Build backend
+        working-directory: backend
+        run: npm run build
+
+      - name: Start backend
+        working-directory: backend
+        env:
+          PORT: 3001
+          DB_USER: vuln_notes
+          DB_PASSWORD: vuln_notes
+          DB_NAME: vuln_notes
+          DB_PORT: 5432
+          DATABASE_URL: postgresql://vuln_notes:vuln_notes@localhost:5432/vuln_notes
+          JWT_SECRET: ci-test-jwt-secret
+          CORS_ORIGIN: http://localhost:5173
+        run: npm run start &
+
+      - name: Wait for backend
+        run: | 
+          until curl --fail http://localhost:3001/health; do
+            sleep 2
+          done
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Start frontend
+        working-directory: frontend
+        run: npm run preview -- --host 0.0.0.0 --port 5173 &
+
+      - name: Wait for frontend
+        run: |
+          until curl --fail http://localhost:5173; do
+            sleep 2
+          done
+
+      - name: OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.15.0
+        with:
+          target: http://localhost:5173
+          allow_issue_writing: false
+          fail_action: true
