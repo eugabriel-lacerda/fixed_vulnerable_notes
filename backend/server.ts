@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
 import { readFileSync } from "fs";
 import { load } from "js-yaml";
@@ -13,6 +14,7 @@ const openapiDocument = load(readFileSync(join(__dirname, "openapi.yaml"), "utf8
 
 const app = express();
 
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({ origin: process.env.CORS_ORIGIN || "http://localhost:5173" }));
 app.use(express.json());
 
