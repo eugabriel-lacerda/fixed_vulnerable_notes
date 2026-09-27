@@ -6,6 +6,7 @@ import { readFileSync } from "fs";
 import { load } from "js-yaml";
 import { join } from "path";
 import appRoutes from "./src/routes";
+import { errorHandler } from "./src/middlewares/errorHandler";
 import "dotenv/config";
 
 const PORT = process.env.PORT || 3000
@@ -25,6 +26,8 @@ app.get("/health", (_req, res) => {
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(openapiDocument));
 
 app.use(appRoutes)
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
