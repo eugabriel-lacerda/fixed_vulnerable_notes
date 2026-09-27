@@ -1,9 +1,11 @@
 import { z } from "zod";
 
-export const CreateNoteSchema = z.object({
-  title: z.string().min(1),
-  body: z.string().optional(),
-});
+export const CreateNoteSchema = z
+  .object({
+    title: z.string().min(1),
+    body: z.string().optional(),
+  })
+  .strict();
 
 export const UpdateNoteSchema = z
   .object({

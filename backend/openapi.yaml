@@ -247,14 +247,12 @@ paths:
             schema:
               type: object
               required: [title]
+              additionalProperties: false
               properties:
                 title:
                   type: string
                 body:
                   type: string
-                user_id:
-                  type: integer
-                  description: Not part of the intended contract — accepted due to mass assignment.
       responses:
         "201":
           description: Note created
