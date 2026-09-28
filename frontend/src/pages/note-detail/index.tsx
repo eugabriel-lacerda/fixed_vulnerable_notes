@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import DOMPurify from "dompurify";
 import { AppLayout } from "../../components/AppLayout/index.tsx";
 import { Button } from "../../components/Button/index.tsx";
 import { ConfirmDialog } from "../../components/ConfirmDialog/index.tsx";
@@ -85,7 +86,7 @@ export function NoteDetail() {
             <h1 className="font-display text-2xl italic">{title}</h1>
             <div
               className="font-sans text-[15px] leading-relaxed text-ink"
-              dangerouslySetInnerHTML={{ __html: body }}
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(body) }}
             />
             <div className="flex gap-3 border-t border-rule pt-6">
               <Button type="button" variant="secondary" size="sm" onClick={() => setEditing(true)}>
