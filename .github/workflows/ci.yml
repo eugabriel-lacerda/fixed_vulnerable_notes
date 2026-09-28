@@ -217,7 +217,38 @@ jobs:
         with:
           target: http://localhost:5173
           allow_issue_writing: true
-          fail_action: true
+          fail_action: false
+          cmd_options: '-c .zap/baseline-rules.tsv'
+
+      - name: Evaluate ZAP Baseline Security Gate
+        if: always()
+        run: |
+          POLICY=".zap/baseline-rules.tsv"
+          REPORT="report_json.json"
+
+          FAIL_IDS=$(grep -v '^#' "$POLICY" | grep -v '^[[:space:]]*$' | awk -F'\t' '$2 == "FAIL" { print $1 }')
+
+          if [ -z "$FAIL_IDS" ]; then
+            echo "ZAP security gate passed: no FAIL findings."
+            exit 0
+          fi
+
+          FOUND_FAIL=0
+          while IFS= read -r RULE_ID; do
+            MATCHES=$(jq -r --arg id "$RULE_ID" '[.site[].alerts[] | select(.pluginid == $id)] | .[]' "$REPORT")
+            if [ -n "$MATCHES" ]; then
+              FOUND_FAIL=1
+              NAME=$(echo "$MATCHES" | jq -r '.alert' | head -1)
+              echo "::error::ZAP FAIL finding — Rule ID $RULE_ID: $NAME"
+            fi
+          done <<< "$FAIL_IDS"
+
+          if [ "$FOUND_FAIL" -eq 1 ]; then
+            exit 1
+          fi
+
+          echo "ZAP security gate passed: no FAIL findings."
+          exit 0
 
       - name: Clean ZAP baseline reports
         if: always()
@@ -234,5 +265,36 @@ jobs:
           target: backend/openapi.yaml
           format: openapi
           allow_issue_writing: true
-          fail_action: true
+          fail_action: false
           artifact_name: zap_api_scan
+          cmd_options: '-c .zap/api-rules.tsv'
+
+      - name: Evaluate ZAP API Security Gate
+        if: always()
+        run: |
+          POLICY=".zap/api-rules.tsv"
+          REPORT="report_json.json"
+
+          FAIL_IDS=$(grep -v '^#' "$POLICY" | grep -v '^[[:space:]]*$' | awk -F'\t' '$2 == "FAIL" { print $1 }')
+
+          if [ -z "$FAIL_IDS" ]; then
+            echo "ZAP security gate passed: no FAIL findings."
+            exit 0
+          fi
+
+          FOUND_FAIL=0
+          while IFS= read -r RULE_ID; do
+            MATCHES=$(jq -r --arg id "$RULE_ID" '[.site[].alerts[] | select(.pluginid == $id)] | .[]' "$REPORT")
+            if [ -n "$MATCHES" ]; then
+              FOUND_FAIL=1
+              NAME=$(echo "$MATCHES" | jq -r '.alert' | head -1)
+              echo "::error::ZAP FAIL finding — Rule ID $RULE_ID: $NAME"
+            fi
+          done <<< "$FAIL_IDS"
+
+          if [ "$FOUND_FAIL" -eq 1 ]; then
+            exit 1
+          fi
+
+          echo "ZAP security gate passed: no FAIL findings."
+          exit 0

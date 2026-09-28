@@ -1,0 +1,13 @@
+# ZAP API Scan security gate
+# Rule ID	Action	Description
+
+40018	FAIL	(SQL Injection)
+100000	WARN	(HTTP Server/Client Error)
+90022	WARN	(Application Error Disclosure)
+10023	WARN	(Information Disclosure - Debug Error Messages)
+10037	WARN	(Server Leaks Information via X-Powered-By)
+100001	WARN	(Unexpected Content-Type)
+10021	WARN	(X-Content-Type-Options Header Missing)
+10111	INFO	(Authentication Request Identified)
+10049	INFO	(Non-Storable Content)
+10112	INFO	(Session Management Response Identified)

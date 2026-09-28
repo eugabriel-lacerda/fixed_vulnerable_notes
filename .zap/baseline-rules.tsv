@@ -1,0 +1,8 @@
+# ZAP Baseline Scan security gate
+# Rule ID	Action	Description
+
+10055	WARN	(Content Security Policy)
+90003	WARN	(Sub Resource Integrity Attribute Missing)
+10027	WARN	(Information Disclosure - Suspicious Comments)
+10109	INFO	(Modern Web Application)
+10049	INFO	(Storable but Non-Cacheable Content)
