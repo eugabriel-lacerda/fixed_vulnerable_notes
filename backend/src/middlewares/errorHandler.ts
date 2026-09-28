@@ -11,5 +11,9 @@ export function errorHandler(error: unknown, _req: Request, res: Response, _next
     return res.status(400).json({ error: "Invalid request body" });
   }
 
+  if (error instanceof SyntaxError && (error as SyntaxError & { type?: string }).type === "entity.parse.failed") {
+    return res.status(400).json({ error: "Invalid JSON body" });
+  }
+
   return res.status(500).json({ error: "Internal server error" });
 }
