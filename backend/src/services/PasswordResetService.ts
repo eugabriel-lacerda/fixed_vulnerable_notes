@@ -22,6 +22,8 @@ export async function requestPasswordReset(email: string) {
   return { message: "Reset code sent" };
 }
 
+const RESET_CODE_TTL_SECONDS = 10 * 60;
+
 export async function confirmPasswordReset(email: string, code: string, newPassword: string) {
   const user = await findUserByEmail(email);
 
@@ -35,8 +37,13 @@ export async function confirmPasswordReset(email: string, code: string, newPassw
     throw new AppError("Invalid reset code", 400);
   }
 
+  if (resetCode.age_seconds > RESET_CODE_TTL_SECONDS) {
+    throw new AppError("Reset code expired", 400);
+  }
+
   const hashedPassword = await hashPassword(newPassword);
   await PasswordResetRepository.updatePassword(user.id, hashedPassword);
+  await PasswordResetRepository.deleteByUserId(user.id);
 
   return { message: "Password updated" };
 }
