@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
 import * as NoteService from "../services/NoteService";
-import { CreateNoteSchema, NoteIdSchema, UpdateNoteSchema } from "../schemas/noteSchemas";
+import { CreateNoteSchema, NoteIdSchema, SearchQuerySchema, UpdateNoteSchema } from "../schemas/noteSchemas";
 
 export const list = async (req: AuthenticatedRequest, res: Response) => {
   const notes = await NoteService.listNotes(req.user!.id);
@@ -9,7 +9,8 @@ export const list = async (req: AuthenticatedRequest, res: Response) => {
 };
 
 export const search = async (req: AuthenticatedRequest, res: Response) => {
-  const notes = await NoteService.searchNotes(req.query.q as string, req.user!.id);
+  const query = SearchQuerySchema.parse(req.query.q);
+  const notes = await NoteService.searchNotes(query, req.user!.id);
   return res.status(200).json(notes);
 };
 

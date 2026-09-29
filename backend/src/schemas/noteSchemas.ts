@@ -15,3 +15,10 @@ export const UpdateNoteSchema = z
   .strict();
 
 export const NoteIdSchema = z.coerce.number().int().positive().max(2147483647);
+
+export const SearchQuerySchema = z
+  .string()
+  .max(200)
+  .refine((value) => !value.includes("\0"), { message: "Query must not contain null bytes" })
+  .optional()
+  .default("");
