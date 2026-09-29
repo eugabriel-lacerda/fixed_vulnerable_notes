@@ -15,5 +15,6 @@ export function errorHandler(error: unknown, _req: Request, res: Response, _next
     return res.status(400).json({ error: "Invalid JSON body" });
   }
 
+  console.error("Unhandled error:", error);
   return res.status(500).json({ error: "Internal server error" });
 }
