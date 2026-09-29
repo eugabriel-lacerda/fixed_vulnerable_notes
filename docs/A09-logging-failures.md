@@ -3,6 +3,8 @@
 **Where:** `backend/src/controllers/AuthController.ts`
 **Flow:** Register (`POST /auth/register`) and Login (`POST /auth/login`)
 
+**Status:** ✅ Fixed — [`da796a6`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/da796a6)
+
 ---
 
 ## Context
@@ -57,6 +59,10 @@ logger.info("login_success", { userId: user.id, ip: req.ip });
 ```
 
 Pair this with the A07 rate limiter/lockout — the log is what lets you notice the attack, the lockout is what stops it.
+
+## Fix applied
+
+Implemented as planned ([`da796a6`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/da796a6)): `register`/`login` now log `{email, ip, outcome, reason}` on both success and failure via `console.log`/`console.warn`. `reason` on a failed login is the fixed string `"invalid_credentials"` regardless of whether the account exists — matching A07's generic client-facing error, so the log itself doesn't become an enumeration oracle for anyone who can read it. `email` is passed through `sanitizeForLog` (strips `\r\n`) before being logged; verified an email containing a newline is rejected by Zod's `.email()` validation before it would even reach the log call, so the sanitizer is defense-in-depth rather than the only barrier.
 
 ---
 

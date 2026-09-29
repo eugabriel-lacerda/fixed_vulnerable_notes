@@ -1,5 +1,7 @@
 # A02 — Security Misconfiguration
 
+**Status:** ✅ Fixed — [`af84c4a`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/af84c4a) (JWT secret), [`7dbc894`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/7dbc894) (CORS), [`7b7d309`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/7b7d309) (helmet)
+
 ---
 
 ## Hardcoded JWT secret
@@ -96,5 +98,11 @@ app.use(helmet());
 ```
 
 ---
+
+## Fix applied
+
+- **JWT secret** ([`af84c4a`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/af84c4a)): moved to `process.env.JWT_SECRET`, with a fail-fast check at boot (`authMiddleware.ts`) — the process throws immediately if the variable is missing, instead of silently calling `jwt.verify()` with `undefined` (see [A03](A03-supply-chain.md) for why that check matters).
+- **CORS** ([`7dbc894`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/7dbc894)): restricted to `process.env.CORS_ORIGIN`, defaulting to the frontend's own origin (`http://localhost:5173`) instead of `*`.
+- **helmet** ([`7b7d309`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/7b7d309)): added globally, removing `X-Powered-By` and adding the standard hardening headers (`X-Content-Type-Options`, `X-Frame-Options`, etc). CSP is handled separately on the frontend side (Vite server, not `helmet`'s), since the API doesn't serve HTML.
 
 **Reference:** [OWASP Top 10:2025](https://owasp.org/Top10/)

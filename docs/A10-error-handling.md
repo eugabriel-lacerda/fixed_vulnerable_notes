@@ -3,6 +3,8 @@
 **Where:** `backend/src/controllers/NoteController.ts`
 **Flow:** Note search (`GET /notes/search?q=`)
 
+**Status:** ✅ Fixed — [`111ac3d`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/111ac3d), [`6eb7db4`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/6eb7db4)
+
 ---
 
 ## Context
@@ -53,6 +55,12 @@ Never return raw exception messages to the client. Log the full error server-sid
   return res.status(500).json({ error: "Internal server error" });
 }
 ```
+
+## Fix applied
+
+The per-endpoint `try/catch` with `error.message` no longer exists — `search` (like every other controller) now propagates errors to a central `errorHandler` middleware that always returns a generic `"Internal server error"` on unrecognized exceptions ([`b08e737`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/b08e737)), and that handler was later updated to `console.error` the full error server-side before responding ([`111ac3d`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/111ac3d)), matching the planned fix above.
+
+Separately, a ZAP scan found the search endpoint still 500'd on a null-byte payload (`q=%00...`) — not the original SQLi-echo bug, but the same underlying gap: `q` reached PostgreSQL unvalidated, and the driver's rejection (`invalid byte sequence for encoding "UTF8"`) fell through to the generic 500. Fixed by validating `q` with Zod (max length, rejects `\0`) before it reaches the database ([`6eb7db4`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/6eb7db4)) — the malformed input is now rejected with 400 at the edge instead of ever reaching Postgres.
 
 ---
 

@@ -3,6 +3,8 @@
 **Where:** `backend/src/utils/hashPassword.ts`
 **Flow:** Register (`POST /auth/register`) and Login (`POST /auth/login`)
 
+**Status:** ✅ Fixed — [`2d20509`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/2d20509)
+
 ---
 
 ## Context
@@ -50,5 +52,9 @@ const hashedPassword = await bcrypt.hash(password, 12);
 ```
 
 ---
+
+## Fix applied
+
+MD5 replaced with `bcrypt` at cost factor 12 ([`2d20509`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/2d20509)). `hashPassword` now returns a real bcrypt hash (self-salted), and login uses `bcrypt.compare()` instead of comparing hashes for equality — the old `===` comparison stopped being valid the moment the hash is no longer deterministic per-password.
 
 **Reference:** [OWASP Top 10:2025](https://owasp.org/Top10/)

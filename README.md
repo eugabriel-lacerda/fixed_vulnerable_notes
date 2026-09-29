@@ -77,28 +77,28 @@ App available at `http://localhost:5173`.
 
 ## Vulnerabilities being fixed
 
-Fixed in reverse order of introduction. Each row will link to the fix commit and updated doc once done.
+Fixed in reverse order of introduction. Each doc has a `Status` line at the top with the exact fix commit(s).
 
 | # | Category (OWASP 2025) | Where | Status |
 |---|---|---|---|
-| 1 | A10 — Mishandling of Exceptional Conditions | Raw database error leaked via note search | ⏳ Pending |
-| 2 | A03 — Software Supply Chain Failures | Pinned vulnerable `jsonwebtoken@8.5.1` | ⏳ Pending |
-| 3 | A06 — Insecure Design | No rate limit on password reset confirmation | ⏳ Pending |
-| 4 | A08 — Software/Data Integrity Failures | Unfiltered merge on note update, no schema validation | ⏳ Pending |
-| 5 | A05 — Injection | SQLi in note search (backend) + stored XSS in note body rendering (frontend) | ⏳ Pending |
-| 6 | A09 — Security Logging and Alerting Failures | No logging of login attempts | ⏳ Pending |
-| 7 | A07 — Authentication Failures | JWT without expiration, no login lockout, password reset code never expires | ⏳ Pending |
-| 8 | A04 — Cryptographic Failures | Password hashing (MD5, no salt) | ⏳ Pending |
-| 9 | A02 — Security Misconfiguration | Hardcoded JWT secret, CORS wide open, missing helmet | ⏳ Pending |
-| 10 | A01 — Broken Access Control | IDOR on `GET/PUT/DELETE /notes/:id` + mass assignment on `POST /notes` | ⏳ Pending |
+| 1 | [A10](docs/A10-error-handling.md) — Mishandling of Exceptional Conditions | Raw database error leaked via note search | ✅ Fixed |
+| 2 | [A03](docs/A03-supply-chain.md) — Software Supply Chain Failures | Pinned vulnerable `jsonwebtoken@8.5.1` | ✅ Fixed |
+| 3 | [A06](docs/A06-insecure-design.md) — Insecure Design | No rate limit on password reset confirmation | ✅ Fixed |
+| 4 | [A08](docs/A08-integrity-failures.md) — Software/Data Integrity Failures | Unfiltered merge on note update, no schema validation | ✅ Fixed |
+| 5 | [A05](docs/A05-injection.md) — Injection | SQLi in note search (backend) + stored XSS in note body rendering (frontend) | ✅ Fixed |
+| 6 | [A09](docs/A09-logging-failures.md) — Security Logging and Alerting Failures | No logging of login attempts | ✅ Fixed |
+| 7 | [A07](docs/A07-auth-failures.md) — Authentication Failures | JWT without expiration, no login lockout, password reset code never expires | ✅ Fixed  |
+| 8 | [A04](docs/A04-crypto-failures.md) — Cryptographic Failures | Password hashing (MD5, no salt) | ✅ Fixed |
+| 9 | [A02](docs/A02-security-misconfiguration.md) — Security Misconfiguration | Hardcoded JWT secret, CORS wide open, missing helmet | ✅ Fixed |
+| 10 | [A01](docs/A01-broken-access-control.md) — Broken Access Control | IDOR on `GET/PUT/DELETE /notes/:id` + mass assignment on `POST /notes` | ✅ Fixed |
 
-Original vulnerability docs (context, PoC, impact) carried over from the vulnerable repo: [docs/](docs/).
+Original vulnerability docs (context, PoC, impact, and now fix details) carried over and updated from the vulnerable repo: [docs/](docs/).
 
 ---
 
 ## Tooling findings
 
-Extra findings surfaced by CodeQL/Semgrep once the pipeline ran, not part of the original 10-item scope. Fixed as they were found.
+Extra findings surfaced by CodeQL/Semgrep/ZAP once the pipeline ran, not part of the original 10-item scope (some overlap with it — noted below). Fixed as they were found.
 
 | Finding | Where | Found by | Commit |
 |---|---|---|---|
@@ -106,8 +106,17 @@ Extra findings surfaced by CodeQL/Semgrep once the pipeline ran, not part of the
 | Permissive CORS configuration | `server.ts` | CodeQL | [`7dbc894`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/7dbc894) |
 | Weak password hash (MD5) | `hashPassword.ts` | CodeQL | [`2d20509`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/2d20509) |
 | Missing rate limiting (auth routes) | `auth.routes.ts` | CodeQL | [`556bcaa`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/556bcaa) |
-| Missing rate limiting (note routes) | `note.routes.ts` | CodeQL | [`aedc218`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/aedc218) |
+| Missing rate limiting (note routes) | `note.routes.ts` | CodeQL | [`aedc218`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/aedc218), [`e567f92`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/e567f92) |
 | Log injection | `PasswordResetService.ts` | CodeQL | [`b753496`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/b753496) |
+| Missing security headers (X-Powered-By, X-Content-Type-Options) | `server.ts` | ZAP API scan | [`7b7d309`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/7b7d309) |
+| Missing security headers (frontend, CSP/COOP/COEP/etc) | `vite.config.ts` | ZAP baseline scan | [`280c77e`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/280c77e), [`3df1af1`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/3df1af1), [`d690866`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/d690866) |
+| Unmatched routes returning HTML 404 instead of JSON | `server.ts` | ZAP API scan | [`8808901`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/8808901) |
+| 500 on malformed/non-object JSON body | `errorHandler.ts` | ZAP API scan | [`b3ea335`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/b3ea335) |
+| 500 on null byte in note search query | `NoteController.ts` | ZAP API scan | [`6eb7db4`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/6eb7db4) — overlaps [A10](docs/A10-error-handling.md) |
+| SQL Injection in note search | `NoteRepository.ts` | ZAP API scan | [`cf2e945`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/cf2e945) — same bug as [A05](docs/A05-injection.md), found independently by both |
+| Persistent XSS (reported, false positive) | `POST /notes` → `dangerouslySetInnerHTML` | ZAP API scan | Investigated, not fixed — [A05](docs/A05-injection.md#fix-applied-1) explains why the DOMPurify fix already neutralizes it despite the scanner still flagging it |
+
+An explicit FAIL/WARN/INFO security gate policy (`.zap/api-rules.tsv`, `.zap/baseline-rules.tsv`) determines which ZAP findings actually fail the CI job.
 
 ---
 

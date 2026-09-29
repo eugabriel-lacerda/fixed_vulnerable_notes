@@ -3,6 +3,8 @@
 **Where:** `backend/src/utils/generateToken.ts`, `backend/src/controllers/AuthController.ts`
 **Flow:** Register (`POST /auth/register`) and Login (`POST /auth/login`)
 
+**Status:** Part 1 ✅ Fixed, Part 2 ✅ Fixed, Part 3 ✅ Fixed — all in [`1d53258`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/1d53258) except Part 2's rate limiting, added earlier in [`556bcaa`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/556bcaa)
+
 ---
 
 ## Part 1 — JWT without expiration
@@ -41,6 +43,10 @@ Add an expiration.
 ```ts
 jwt.sign({ userId }, JWT_SECRET, { expiresIn: "1h" });
 ```
+
+### Fix applied
+
+Implemented exactly as planned ([`1d53258`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/1d53258)) — tokens now carry a 1h `exp` claim, confirmed by decoding a fresh token and checking `exp - iat == 3600`.
 
 ## Part 2 — No lockout after repeated failed login attempts
 
@@ -84,6 +90,12 @@ Weak or common passwords can be brute-forced online, with no friction at all. Co
 
 Add a rate limiter (e.g. `express-rate-limit`) scoped to the login route, and/or an account lockout after N consecutive failures within a time window, with exponential backoff or a temporary cooldown.
 
+### Fix applied 
+
+A per-IP rate limiter (`express-rate-limit`, 5 requests/15min) was added to `/auth/login` and the other auth routes ([`556bcaa`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/556bcaa)), which neutralizes the PoC above (a single-machine loop hits the limit almost immediately instead of running to completion).
+
+Per-account lockout (independent of IP) was evaluated and deliberately **not implemented**: it only adds protection against a distributed/IP-rotating attacker, a scenario the documented PoC doesn't demonstrate, and it would require either in-memory state (lost on restart, doesn't scale past one instance) or a new DB table/migration for a threat model this project isn't targeting. Rate limiting is considered sufficient mitigation for the scope of this project; full account lockout is left as a documented gap rather than implemented for the sake of closing the finding.
+
 ## Part 3 — Password reset code never expires
 
 ```ts
@@ -124,6 +136,10 @@ A code intercepted or guessed long after it was issued (leaked in a log, cached 
 ### Planned fix
 
 Check `created_at` against a short TTL (e.g. 10 minutes) before accepting a code, and delete or mark it used after a single successful confirmation so it can't be replayed.
+
+### Fix applied
+
+Implemented as planned ([`1d53258`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/1d53258)): a 10-minute TTL is enforced (computed in Postgres via `EXTRACT(EPOCH FROM (NOW() - created_at))`, avoiding a Node/Postgres timezone mismatch bug found during testing — computing the age in JS from a naive timestamp string produced a negative age and never expired anything), and the code row is deleted immediately after a successful confirmation, making replay impossible. Verified: a code artificially backdated 15 minutes is rejected with "Reset code expired"; a fresh code still works; reusing an already-consumed code fails.
 
 ## Related note (A02)
 

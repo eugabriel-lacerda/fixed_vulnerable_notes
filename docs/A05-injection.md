@@ -2,6 +2,8 @@
 
 This category covers two unrelated vulnerabilities in this app: SQL Injection on the backend (note search) and stored XSS on the frontend (note body rendering). Different mechanisms, same OWASP category.
 
+**Status:** ✅ Fixed — SQLi [`cf2e945`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/cf2e945), XSS [`6719ddf`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/6719ddf)
+
 ---
 
 ## Part 1 — SQL Injection
@@ -69,6 +71,10 @@ sql`SELECT id, user_id, title, body, created_at FROM notes WHERE title LIKE ${'%
 
 The `%` wildcards are built in JS and passed as a single bound parameter, so the driver escapes the value correctly no matter what it contains. Also add the missing `user_id` filter, so search results are scoped to the authenticated user like the rest of the notes endpoints.
 
+### Fix applied
+
+`sql.raw()` replaced with a parameterized `sql` tagged template ([`cf2e945`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/cf2e945)); the missing `user_id` scoping was added alongside [A01](A01-broken-access-control.md)'s fix. A separate follow-up ([`6eb7db4`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/6eb7db4)) added Zod validation on the `q` parameter itself (max length, rejects null bytes) after a ZAP scan found a different crash on this same endpoint — see [A10](A10-error-handling.md).
+
 ---
 
 ## Part 2 — Stored XSS
@@ -116,6 +122,10 @@ import DOMPurify from "dompurify";
   dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(body) }}
 />
 ```
+
+### Fix applied
+
+Implemented exactly as planned above ([`6719ddf`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/6719ddf)). Verified against the `<img onerror>` payload from the PoC: `DOMPurify.sanitize()` strips the `onerror` attribute, leaving an inert `<img src="x">`. A follow-up ZAP scan still flags this endpoint (rule `40014`, persistent XSS) because the API continues to store and return the raw payload in JSON — the scanner only checks whether injected text reappears in the response, not whether the browser executes it. Confirmed false positive: the backend intentionally doesn't sanitize on write (sanitizing on read, at the one place it's rendered as HTML, is the correct layer).
 
 ---
 

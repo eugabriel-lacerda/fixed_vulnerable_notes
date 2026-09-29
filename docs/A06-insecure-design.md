@@ -3,6 +3,8 @@
 **Where:** `backend/src/services/PasswordResetService.ts`
 **Flow:** Password recovery (`POST /auth/recover-password`, `POST /auth/recover-password/confirm`)
 
+**Status:** ✅ Fixed — [`556bcaa`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/556bcaa)
+
 ---
 
 ## Context
@@ -47,6 +49,12 @@ Full account takeover for any user whose email is known, without needing to phis
 ## Planned fix
 
 Add a rate limiter scoped to `recover-password/confirm` (e.g. `express-rate-limit`, keyed by email or IP), and lock the reset flow after N consecutive failed attempts within a time window, forcing a fresh code request.
+
+## Fix applied
+
+A per-IP rate limiter was added to `recover-password/confirm` and the other auth routes ([`556bcaa`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/556bcaa), 5 requests/15min), which neutralizes the PoC above — the 1,000,000-guess loop from one machine now hits the limit almost immediately.
+
+The stricter "lock after N consecutive failures" design from the planned fix was evaluated and deliberately not implemented on top of the rate limiter — same reasoning as [A07 Part 2](A07-auth-failures.md#part-2--no-lockout-after-repeated-failed-login-attempts): it only matters against a distributed/IP-rotating attacker, which isn't what this project's PoC demonstrates, and the added state (in-memory or a new DB table) wasn't judged worth it for the threat model in scope here. This is also where [A07 Part 3](A07-auth-failures.md#part-3--password-reset-code-never-expires)'s fix helps independently: the code TTL means even an attacker who *does* get past the rate limit has a shrinking window to guess in.
 
 ---
 

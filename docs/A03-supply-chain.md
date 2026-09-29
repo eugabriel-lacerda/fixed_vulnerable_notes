@@ -2,6 +2,8 @@
 
 **Where:** `backend/package.json`
 
+**Status:** ✅ Fixed — upgraded to `jsonwebtoken@^9.0.3`. `JWT_SECRET` fail-fast check confirmed present in `authMiddleware.ts` (see [A02](A02-security-misconfiguration.md)), so the `alg: none` gap described below cannot reopen silently.
+
 ---
 
 ## Context

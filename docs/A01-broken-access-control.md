@@ -3,6 +3,8 @@
 **Where:** `backend/src/repositories/NoteRepository.ts`, `backend/src/controllers/NoteController.ts`
 **Flow:** Notes CRUD (`GET/PUT/DELETE /notes/:id`, `POST /notes`)
 
+**Status:** ✅ Fixed — [`9ed1612`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/9ed1612)
+
 ---
 
 ## Part 1 — IDOR (Insecure Direct Object Reference)
@@ -98,5 +100,11 @@ const userId = req.user!.id; // never read from req.body
 ```
 
 ---
+
+## Fix applied
+
+Both parts fixed in [`9ed1612`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/9ed1612):
+- Every note query (`findById`, `searchByTitle`, `update`, `remove`) now scopes by `user_id`. A note that isn't the caller's returns 404, matching the "don't reveal existence" guidance above.
+- `POST /notes` no longer reads `user_id` from the body. `CreateNoteSchema` is `.strict()` (Zod), rejecting the field outright with a 400 instead of silently accepting it.
 
 **Reference:** [OWASP Top 10:2025](https://owasp.org/Top10/)

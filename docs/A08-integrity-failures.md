@@ -3,7 +3,9 @@
 **Where:** `backend/src/controllers/NoteController.ts`, `backend/src/services/NoteService.ts`
 **Flow:** Note update (`PUT /notes/:id`)
 
-**Status:** implemented as the classic anti-pattern, but its impact is narrower than the textbook version — see "Why this doesn't fully pollute `Object.prototype`" below. Kept and documented anyway because the code smell and its real-world equivalent (deep-merge libraries) are exactly what causes this bug in production.
+**Status:** ✅ Fixed — [`b08e737`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/b08e737)
+
+As originally implemented, this was the classic anti-pattern with narrower impact than the textbook version — see "Why this doesn't fully pollute `Object.prototype`" below. Documented anyway because the code smell and its real-world equivalent (deep-merge libraries) are exactly what causes this bug in production.
 
 ---
 
@@ -70,6 +72,10 @@ Validate the request body against an explicit schema (Zod, `.strict()`) before t
 ```ts
 const { title, body } = NoteUpdateSchema.parse(req.body);
 ```
+
+## Fix applied
+
+Implemented as planned in [`b08e737`](https://github.com/eugabriel-lacerda/fixed_vulnerable_notes/commit/b08e737): `UpdateNoteSchema` (Zod, `.strict()`) rejects any field outside `{title, body}` with a 400, and `NoteService.updateNote` no longer calls `Object.assign` — it reads `updates.title`/`updates.body` individually. The `__proto__` PoC from above now returns 400 before reaching the service layer at all.
 
 ---
 
