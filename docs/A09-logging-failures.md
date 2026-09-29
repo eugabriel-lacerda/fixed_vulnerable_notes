@@ -41,7 +41,7 @@ curl -X POST http://localhost:4000/auth/login \
   -d '{"email":"user@test.com","password":"wrong-password"}'
 ```
 
-Check the server's stdout/logs — nothing related to this attempt appears. This is true whether it's one failed attempt or ten thousand (see [A07's brute-force PoC](A07-auth-failures.md#part-2--no-lockout-after-repeated-failed-login-attempts), which also produces zero log entries).
+Check the server's stdout/logs — nothing related to this attempt appears. This is true whether it's one failed attempt or ten thousand (see [A07's brute-force PoC](A07-auth-failures.md#part-2--no-lockout-after-repeated-failed-login-attempts), which shows the same gap on the login route before its own fix).
 
 ## Impact
 

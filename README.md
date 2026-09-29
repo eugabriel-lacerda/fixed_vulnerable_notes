@@ -20,17 +20,20 @@ It's part of a two-repo pair:
 
 ## Approach
 
-1. **Pipeline first, on vulnerable code.** GitHub Actions CI added before any fix, running SCA/SAST/DAST against the codebase as-is. Findings are expected here (vulnerable `jsonwebtoken`, SQLi, XSS, missing security headers, open CORS, etc).
-2. **One commit per vulnerability fixed**, applied in the reverse order they were introduced.
-3. **Pipeline goes green incrementally.** Each fix commit is directly comparable against the pipeline output before it — e.g. "here SAST still flagged X, here it no longer does."
+1. **Pipeline first, on vulnerable code.** GitHub Actions CI added before any fix, running SCA/SAST/DAST against the codebase as-is. This captured real findings — vulnerable `jsonwebtoken`, SQLi, XSS, missing security headers, open CORS — as tooling output, not just as written docs.
+2. **One commit per vulnerability fixed**, applied in the reverse order they were introduced, plus every extra finding the pipeline itself surfaced along the way (see [Tooling findings](#tooling-findings) below).
+3. **Pipeline went green incrementally.** Each fix commit is directly comparable against the pipeline output before it. All 10 scope items and every tooling finding except one confirmed false positive (see below) are now fixed.
 
 ### Tooling
 
-| Layer | Tool | Catches |
+| Layer | Tool | Caught |
 |---|---|---|
 | SCA | Dependabot + `npm audit` | Vulnerable `jsonwebtoken@8.5.1` |
-| SAST | CodeQL + Semgrep (OWASP rule set) | SQLi (`sql.raw`), mass assignment, prototype pollution |
-| DAST | OWASP ZAP baseline scan | Reflected/stored XSS at runtime, missing headers (no helmet), open CORS |
+| SAST | CodeQL + Semgrep (OWASP rule set) | SQLi (`sql.raw`), hardcoded secret, weak hash, CORS, missing rate limiting, log injection |
+| DAST | OWASP ZAP (baseline + authenticated API scan against the OpenAPI spec) | Missing security headers/CSP, SQLi (independently of SAST), malformed-input 500s, HTML 404s on an API |
+| Secrets | Gitleaks | — |
+
+A security gate (`.zap/api-rules.tsv`, `.zap/baseline-rules.tsv`) classifies each ZAP finding as FAIL/WARN/INFO so CI fails only on what's actually severe.
 
 ---
 
@@ -137,20 +140,26 @@ fixed_vulnerable_notes/
 │   ├── A09-logging-failures.md
 │   └── A10-error-handling.md
 ├── .github/
-│   └── workflows/         # CI: SCA + SAST + DAST
+│   └── workflows/         
+├── .zap/                  
+│   ├── api-rules.tsv
+│   └── baseline-rules.tsv
 ├── backend/
 │   ├── docker-compose.yml
 │   ├── drizzle.config.ts
+│   ├── openapi.yaml        
+│   ├── requests.http
 │   ├── server.ts
 │   └── src/
 │       ├── controllers/
 │       ├── services/
 │       ├── repositories/
+│       ├── schemas/        
 │       ├── database/
 │       │   ├── schema.ts
 │       │   └── migrations/
 │       ├── routes/
-│       ├── middlewares/
+│       ├── middlewares/     
 │       ├── errors/
 │       ├── types/
 │       └── utils/
